@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "72328187215",
+    "project_id": "ethic-fin-task2",
+    "storage_bucket": "ethic-fin-task2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72328187215:android:4b2ecd0a6bc5ca19ccc93a",
+        "android_client_info": {
+          "package_name": "com.example.ethic_fin_task2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_VQfSWh-b_ixDuBg1rfoAmQlBhwPFauo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
