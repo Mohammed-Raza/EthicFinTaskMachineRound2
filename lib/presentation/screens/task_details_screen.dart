@@ -27,9 +27,9 @@ class TaskDetailsScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24.0),
-              decoration: const BoxDecoration(
-                color: Colors.teal,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: Theme.of(context).appBarTheme.backgroundColor,
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(40),
                   bottomRight: Radius.circular(40),
                 ),
@@ -40,7 +40,7 @@ class TaskDetailsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildPriorityBadge(task.priority),
+                      _buildPriorityBadge(context, task.priority),
                       _buildStatusChip(task.isCompleted),
                     ],
                   ),
@@ -209,7 +209,7 @@ class TaskDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPriorityBadge(TaskPriority priority) {
+  Widget _buildPriorityBadge(BuildContext context, TaskPriority priority) {
     Color color;
     switch (priority) {
       case TaskPriority.low: color = Colors.blue.shade100; break;

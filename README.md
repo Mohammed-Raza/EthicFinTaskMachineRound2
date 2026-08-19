@@ -1,60 +1,87 @@
-# Task Manager Application
+# 🚀 Flutter Task Manager
 
-A modern Flutter Task Manager application built with Clean Architecture, BLoc state management, Firebase Cloud Firestore, and SQLite local storage.
+A professional-grade Flutter application for task management built with **Clean Architecture**, **BLoc** state management, and an **Offline-First** synchronization strategy using **SQFLite** and **Firebase Cloud Firestore**.
 
-## Features
+---
 
-- **Task Management**: Create, Read, Update, and Delete tasks.
-- **Offline First**: Full local persistence using SQFLite. The app remains functional without internet.
-- **Cloud Sync**: Automatic synchronization with Firebase Cloud Firestore when connectivity is restored.
-- **Search & Filtering**: Instant local search by title, and filtering by status (All, Pending, Completed).
-- **Sorting**: Sort tasks by Due Date or Priority.
-- **Modern UI**: Beautiful Teal theme supporting both Light and Dark modes.
-- **Navigation**: Uses `go_router` for structured and type-safe navigation.
-- **Form Validation**: Real-time validation for task creation and editing.
+## 🏗️ Architecture
 
-## Architecture
+The project follows a strict **Clean Architecture** pattern to ensure a decoupled, testable, and maintainable codebase.
 
-The project follows **Clean Architecture** principles:
-- **Domain Layer**: Entities and Repository interfaces.
-- **Data Layer**: Models (with `json_serializable`), Repository implementations, and Data Sources (Firestore & SQLite).
-- **Presentation Layer**: BLocs for state management and modern Flutter widgets.
+### Layers:
+1.  **Domain Layer (`lib/domain`)**:
+    *   **Entities**: Pure business objects (`TaskEntity`) that are independent of any external libraries.
+    *   **Repositories**: Abstract contracts defining how data should be handled.
+2.  **Data Layer (`lib/data`)**:
+    *   **Models**: Data Transfer Objects (DTOs) with automated **JSON serialization** (`TaskModel`).
+    *   **Data Sources**: Concrete implementations for **SQFLite** (local) and **Cloud Firestore** (remote).
+    *   **Repositories Implementation**: The "brain" that manages data flow, user scoping, and background synchronization.
+3.  **Presentation Layer (`lib/presentation`)**:
+    *   **BLocs**: Handles UI state logic (`TaskBloc`, `AuthBloc`, `ThemeBloc`).
+    *   **UI**: Material 3 components with adaptive styling for a modern user experience.
 
-## Technical Stack
+---
 
-- **Framework**: Flutter
-- **State Management**: flutter_bloc
-- **Local Database**: sqflite
-- **Remote Database**: Cloud Firestore
-- **Navigation**: go_router
-- **Networking**: connectivity_plus
-- **Code Generation**: build_runner, json_serializable
+## ✨ Key Features
 
-## Getting Started
+*   🔐 **Firebase Authentication**: Full Login and Signup flow. All task data is securely scoped to the individual user.
+*   🔄 **Offline-First Sync**: Create, edit, or delete tasks without internet. The app automatically syncs local changes to Firestore when connection is restored.
+*   🎨 **Beautiful Teal UI**: A custom-designed interface with a signature teal identity.
+*   🌓 **Dynamic Theme**: Instant switching between high-quality **Light and Dark modes**.
+*   🔍 **Local Search & Filter**: High-performance local search by title/description and status-based filtering (All, Pending, Completed).
+*   📅 **Smart Sorting**: Organize tasks by Due Date or Priority (High, Medium, Low).
+*   ⚡ **GoRouter Navigation**: Declarative and type-safe routing throughout the app.
+*   ✅ **Real-time Validation**: Form fields provide instant feedback to guide the user.
 
-1.  **Firebase Setup**:
-    - Add your `google-services.json` to `android/app/`.
-    - Enable **Firestore Database** in the Firebase Console.
-2.  **Install Dependencies**:
-    ```bash
-    flutter pub get
-    ```
-3.  **Run Code Generation**:
-    ```bash
-    dart run build_runner build --delete-conflicting-outputs
-    ```
-4.  **Run the App**:
-    ```bash
-    flutter run
-    ```
+---
 
-## Testing
+## 🛠️ Setup Instructions
 
-The project includes both unit and widget tests:
-- **Unit Tests**: `test/presentation/blocs/task/task_bloc_test.dart`
-- **Widget Tests**: `test/presentation/screens/`
+### 1. Prerequisites
+*   Flutter SDK (v3.x.x)
+*   Firebase Project
 
-Run all tests using:
+### 2. Firebase Configuration
+1.  Add an **Android app** in your Firebase Console with package: `com.example.ethic_fin_task2`.
+2.  Download `google-services.json` and place it in `android/app/`.
+3.  **Enable Services**:
+    *   **Authentication**: Enable `Email/Password` provider.
+    *   **Firestore Database**: Create a database in `Test Mode`.
+
+### 3. Installation & Build
+```bash
+# Install dependencies
+flutter pub get
+
+# Generate serialization and mock code
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### 4. Running the App
+```bash
+flutter run
+```
+
+---
+
+## 🧪 Testing Suite
+
+The project maintains high code quality through automated testing:
+*   **Unit Tests**: Validates BLoc state transitions and business logic.
+*   **Widget Tests**: Ensures UI components and navigation paths are reliable.
+
+**Run all tests**:
 ```bash
 flutter test
 ```
+
+---
+
+## 📦 Technical Stack
+*   **State Management**: `flutter_bloc`
+*   **Navigation**: `go_router`
+*   **Local DB**: `sqflite`
+*   **Cloud DB**: `cloud_firestore`
+*   **Auth**: `firebase_auth`
+*   **Network**: `connectivity_plus`
+*   **Serialization**: `json_serializable`

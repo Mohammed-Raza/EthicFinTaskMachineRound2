@@ -51,9 +51,9 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
           children: [
             Container(
               height: 60,
-              decoration: const BoxDecoration(
-                color: Colors.teal,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: Theme.of(context).appBarTheme.backgroundColor,
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(32),
                   bottomRight: Radius.circular(32),
                 ),
@@ -71,7 +71,6 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
                     padding: const EdgeInsets.all(24.0),
                     child: Form(
                       key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -86,6 +85,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
                           const SizedBox(height: 24),
                           TextFormField(
                             controller: _titleController,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                               labelText: 'Title',
                               prefixIcon: Icon(Icons.title_rounded, color: Theme.of(context).colorScheme.primary),
@@ -100,6 +100,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _descriptionController,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                               labelText: 'Description',
                               prefixIcon: Icon(Icons.description_rounded, color: Theme.of(context).colorScheme.primary),

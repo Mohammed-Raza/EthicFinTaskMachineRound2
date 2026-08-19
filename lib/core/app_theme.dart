@@ -56,16 +56,17 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: Colors.teal,
-        primary: Colors.teal,
+        primary: Colors.tealAccent,
         secondary: Colors.tealAccent,
+        surface: const Color(0xFF121212),
         brightness: Brightness.dark,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         centerTitle: true,
-        backgroundColor: Colors.grey.shade900,
+        backgroundColor: Color(0xFF1B1B1B),
         foregroundColor: Colors.tealAccent,
         elevation: 0,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -73,14 +74,14 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.teal,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.tealAccent,
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: Colors.grey.shade900,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.teal.shade700),

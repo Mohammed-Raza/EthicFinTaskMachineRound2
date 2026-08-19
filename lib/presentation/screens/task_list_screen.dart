@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../blocs/task/task_bloc.dart';
+import '../blocs/auth/auth_bloc.dart';
 import '../blocs/theme_bloc.dart';
 import '../widgets/task_item.dart';
 
@@ -48,12 +49,29 @@ class TaskListScreen extends StatelessWidget {
               onPressed: () => context.read<TaskBloc>().add(SyncTasks()),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.filter_list_rounded),
-              tooltip: 'Sort Tasks',
-              onSelected: (value) => context.read<TaskBloc>().add(SortTasks(value)),
+              icon: const Icon(Icons.more_vert_rounded),
+              tooltip: 'More options',
+              onSelected: (value) {
+                if (value == 'Logout') {
+                  context.read<AuthBloc>().add(AuthLogoutRequested());
+                } else {
+                  context.read<TaskBloc>().add(SortTasks(value));
+                }
+              },
               itemBuilder: (context) => [
                 const PopupMenuItem(value: 'Due Date', child: Text('Sort by Due Date')),
                 const PopupMenuItem(value: 'Priority', child: Text('Sort by Priority')),
+                const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: 'Logout', 
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout, color: Colors.redAccent, size: 20),
+                      SizedBox(width: 8),
+                      Text('Logout', style: TextStyle(color: Colors.redAccent)),
+                    ],
+                  )
+                ),
               ],
             ),
           ],
@@ -63,28 +81,28 @@ class TaskListScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.teal,
+                color: Theme.of(context).appBarTheme.backgroundColor,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(32),
                   bottomRight: Radius.circular(32),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.teal.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Column(
                 children: [
                   TextField(
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Search tasks...',
                       hintStyle: TextStyle(color: Colors.grey.shade600),
-                      prefixIcon: const Icon(Icons.search, color: Colors.teal),
-                      fillColor: Colors.white,
+                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+                      fillColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.grey.shade900,
                       filled: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -105,11 +123,13 @@ class TaskListScreen extends StatelessWidget {
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 4.0),
                               child: ChoiceChip(
-                                label: Text(filter),
+                                label: Text(filter),checkmarkColor: Colors.blueGrey,
                                 selected: isSelected,
-                                selectedColor: Colors.tealAccent.shade700,
+                                selectedColor: Colors.amber.shade300,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.teal.shade700,
+                                  color: isSelected 
+                                    ? (Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black)
+                                    : (Theme.of(context).brightness == Brightness.light ? Colors.teal.shade700 : Colors.white70),
                                   fontWeight: FontWeight.bold,
                                 ),
                                 onSelected: (selected) {
@@ -131,7 +151,7 @@ class TaskListScreen extends StatelessWidget {
               child: BlocBuilder<TaskBloc, TaskState>(
                 builder: (context, state) {
                   if (state.status == TaskStatus.loading) {
-                    return const Center(child: CircularProgressIndicator(color: Colors.teal));
+                    return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
                   }
 
                   if (state.filteredTasks.isEmpty) {
@@ -139,7 +159,7 @@ class TaskListScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.task_alt_rounded, size: 80, color: Colors.teal.withOpacity(0.2)),
+                          Icon(Icons.task_alt_rounded, size: 80, color: Theme.of(context).colorScheme.primary.withOpacity(0.2)),
                           const SizedBox(height: 16),
                           Text(
                             state.allTasks.isEmpty

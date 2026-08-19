@@ -10,34 +10,43 @@ import 'package:ethic_fin_task2/domain/entities/task_entity.dart';
 
 import 'package:go_router/go_router.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ethic_fin_task2/presentation/blocs/auth/auth_bloc.dart';
+import 'package:ethic_fin_task2/core/router.dart';
+
 class MockTaskBloc extends MockBloc<TaskEvent, TaskState> implements TaskBloc {}
 class MockThemeBloc extends MockBloc<ThemeEvent, ThemeState> implements ThemeBloc {}
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
+class MockUser extends Mock implements User {
+  @override
+  String get uid => 'user123';
+}
 
 void main() {
   late MockTaskBloc mockTaskBloc;
   late MockThemeBloc mockThemeBloc;
+  late MockAuthBloc mockAuthBloc;
+  late MockUser mockUser;
 
   setUp(() {
     mockTaskBloc = MockTaskBloc();
     mockThemeBloc = MockThemeBloc();
+    mockAuthBloc = MockAuthBloc();
+    mockUser = MockUser();
 
     when(() => mockThemeBloc.state).thenReturn(const ThemeState(ThemeMode.light));
+    when(() => mockAuthBloc.state).thenReturn(AuthState.authenticated(mockUser));
+    when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
   });
 
   Widget createWidgetUnderTest() {
-    final router = GoRouter(
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const TaskListScreen(),
-        ),
-      ],
-    );
+    final router = createRouter(mockAuthBloc);
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<TaskBloc>.value(value: mockTaskBloc),
         BlocProvider<ThemeBloc>.value(value: mockThemeBloc),
+        BlocProvider<AuthBloc>.value(value: mockAuthBloc),
       ],
       child: MaterialApp.router(
         routerConfig: router,

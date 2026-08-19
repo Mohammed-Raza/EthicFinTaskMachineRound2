@@ -1,15 +1,24 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ethic_fin_task2/domain/entities/task_entity.dart';
 import 'package:ethic_fin_task2/domain/repositories/task_repository.dart';
 import 'package:ethic_fin_task2/presentation/blocs/task/task_bloc.dart';
+import 'package:ethic_fin_task2/presentation/blocs/auth/auth_bloc.dart';
 
 class MockTaskRepository extends Mock implements TaskRepository {}
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
+class MockUser extends Mock implements User {
+  @override
+  String get uid => 'user123';
+}
 
 void main() {
   late TaskBloc taskBloc;
   late MockTaskRepository mockTaskRepository;
+  late MockAuthBloc mockAuthBloc;
+  late MockUser mockUser;
 
   setUpAll(() {
     registerFallbackValue(TaskEntity(
@@ -24,7 +33,14 @@ void main() {
 
   setUp(() {
     mockTaskRepository = MockTaskRepository();
-    taskBloc = TaskBloc(repository: mockTaskRepository);
+    mockAuthBloc = MockAuthBloc();
+    mockUser = MockUser();
+    
+    // Default auth state: Authenticated
+    when(() => mockAuthBloc.state).thenReturn(AuthState.authenticated(mockUser));
+    when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
+    
+    taskBloc = TaskBloc(repository: mockTaskRepository, authBloc: mockAuthBloc);
   });
 
   tearDown(() {
@@ -50,7 +66,7 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [loading, success] when watchTasks emits tasks',
       setUp: () {
-        when(() => mockTaskRepository.watchTasks())
+        when(() => mockTaskRepository.watchTasks(any()))
             .thenAnswer((_) => Stream.value(tTasks));
       },
       build: () => taskBloc,
@@ -63,6 +79,9 @@ void main() {
           filteredTasks: tTasks,
         ),
       ],
+      verify: (_) {
+        verify(() => mockTaskRepository.watchTasks('user123')).called(1);
+      },
     );
   });
 
@@ -70,20 +89,20 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'calls repository.addTask',
       setUp: () {
-        when(() => mockTaskRepository.addTask(any()))
+        when(() => mockTaskRepository.addTask(any(), any()))
             .thenAnswer((_) async => {});
       },
       build: () => taskBloc,
       act: (bloc) => bloc.add(AddTask(tTask)),
       verify: (_) {
-        verify(() => mockTaskRepository.addTask(tTask)).called(1);
+        verify(() => mockTaskRepository.addTask('user123', tTask)).called(1);
       },
     );
 
     blocTest<TaskBloc, TaskState>(
       'emits state with error message when repository.addTask fails',
       setUp: () {
-        when(() => mockTaskRepository.addTask(any()))
+        when(() => mockTaskRepository.addTask(any(), any()))
             .thenThrow(Exception('Failed to add'));
       },
       build: () => taskBloc,
@@ -99,13 +118,13 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'calls repository.updateTask',
       setUp: () {
-        when(() => mockTaskRepository.updateTask(any()))
+        when(() => mockTaskRepository.updateTask(any(), any()))
             .thenAnswer((_) async => {});
       },
       build: () => taskBloc,
       act: (bloc) => bloc.add(UpdateTask(tTask)),
       verify: (_) {
-        verify(() => mockTaskRepository.updateTask(tTask)).called(1);
+        verify(() => mockTaskRepository.updateTask('user123', tTask)).called(1);
       },
     );
   });
@@ -114,13 +133,13 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'calls repository.deleteTask',
       setUp: () {
-        when(() => mockTaskRepository.deleteTask(any()))
+        when(() => mockTaskRepository.deleteTask(any(), any()))
             .thenAnswer((_) async => {});
       },
       build: () => taskBloc,
       act: (bloc) => bloc.add(const DeleteTask('1')),
       verify: (_) {
-        verify(() => mockTaskRepository.deleteTask('1')).called(1);
+        verify(() => mockTaskRepository.deleteTask('user123', '1')).called(1);
       },
     );
   });
@@ -187,13 +206,13 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'calls repository.syncTasks',
       setUp: () {
-        when(() => mockTaskRepository.syncTasks())
+        when(() => mockTaskRepository.syncTasks(any()))
             .thenAnswer((_) async => {});
       },
       build: () => taskBloc,
       act: (bloc) => bloc.add(SyncTasks()),
       verify: (_) {
-        verify(() => mockTaskRepository.syncTasks()).called(1);
+        verify(() => mockTaskRepository.syncTasks('user123')).called(1);
       },
     );
   });

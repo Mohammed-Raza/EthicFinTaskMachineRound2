@@ -17,23 +17,17 @@ class TaskRepositoryImpl implements TaskRepository {
     required this.localDataSource,
     required this.remoteDataSource,
     required this.connectivity,
-  }) {
-    connectivity.onConnectivityChanged.listen((status) {
-      if (!status.contains(ConnectivityResult.none)) {
-        syncTasks();
-      }
-    });
-  }
+  });
 
   @override
-  Future<List<TaskEntity>> getTasks() async {
+  Future<List<TaskEntity>> getTasks(String userId) async {
     final localTasks = await localDataSource.getTasks();
     _taskStreamController.add(localTasks);
     
     final connectionStatus = await connectivity.checkConnectivity();
     if (!connectionStatus.contains(ConnectivityResult.none)) {
       try {
-        final remoteTasks = await remoteDataSource.getTasks();
+        final remoteTasks = await remoteDataSource.getTasks(userId);
         for (var task in remoteTasks) {
           await localDataSource.cacheTask(task);
         }
@@ -48,7 +42,7 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<void> addTask(TaskEntity task) async {
+  Future<void> addTask(String userId, TaskEntity task) async {
     final taskModel = TaskModel.fromEntity(task);
     await localDataSource.cacheTask(taskModel);
     _emitLocalTasks();
@@ -56,7 +50,7 @@ class TaskRepositoryImpl implements TaskRepository {
     final connectionStatus = await connectivity.checkConnectivity();
     if (!connectionStatus.contains(ConnectivityResult.none)) {
       try {
-        await remoteDataSource.addTask(taskModel);
+        await remoteDataSource.addTask(userId, taskModel);
         await localDataSource.markAsSynced(task.id);
         _emitLocalTasks();
       } catch (e) {
@@ -66,7 +60,7 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<void> updateTask(TaskEntity task) async {
+  Future<void> updateTask(String userId, TaskEntity task) async {
     final taskModel = TaskModel.fromEntity(task).copyWith(isSynced: false);
     await localDataSource.cacheTask(taskModel);
     _emitLocalTasks();
@@ -74,7 +68,7 @@ class TaskRepositoryImpl implements TaskRepository {
     final connectionStatus = await connectivity.checkConnectivity();
     if (!connectionStatus.contains(ConnectivityResult.none)) {
       try {
-        await remoteDataSource.updateTask(taskModel);
+        await remoteDataSource.updateTask(userId, taskModel);
         await localDataSource.markAsSynced(task.id);
         _emitLocalTasks();
       } catch (e) {
@@ -84,14 +78,14 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTask(String userId, String taskId) async {
     await localDataSource.deleteTask(taskId);
     _emitLocalTasks();
 
     final connectionStatus = await connectivity.checkConnectivity();
     if (!connectionStatus.contains(ConnectivityResult.none)) {
       try {
-        await remoteDataSource.deleteTask(taskId);
+        await remoteDataSource.deleteTask(userId, taskId);
       } catch (e) {
         // Handle error
       }
@@ -99,8 +93,8 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Stream<List<TaskEntity>> watchTasks() {
-    getTasks(); // Initial fetch
+  Stream<List<TaskEntity>> watchTasks(String userId) {
+    getTasks(userId); // Initial fetch
     return _taskStreamController.stream;
   }
 
@@ -110,14 +104,14 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<void> syncTasks() async {
+  Future<void> syncTasks(String userId) async {
     final connectionStatus = await connectivity.checkConnectivity();
     if (connectionStatus.contains(ConnectivityResult.none)) return;
 
     final unsyncedTasks = await localDataSource.getUnsyncedTasks();
     for (var task in unsyncedTasks) {
       try {
-        await remoteDataSource.addTask(task);
+        await remoteDataSource.addTask(userId, task);
         await localDataSource.markAsSynced(task.id);
       } catch (e) {
         // Continue with others

@@ -3,15 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/task_entity.dart';
 import '../../../domain/repositories/task_repository.dart';
+import '../auth/auth_bloc.dart';
 
 part 'task_event.dart';
 part 'task_state.dart';
 
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final TaskRepository repository;
+  final AuthBloc authBloc;
   StreamSubscription? _taskSubscription;
+  StreamSubscription? _authSubscription;
 
-  TaskBloc({required this.repository}) : super(const TaskState()) {
+  TaskBloc({required this.repository, required this.authBloc}) : super(const TaskState()) {
     on<LoadTasks>(_onLoadTasks);
     on<AddTask>(_onAddTask);
     on<UpdateTask>(_onUpdateTask);
@@ -22,12 +25,21 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<SortTasks>(_onSortTasks);
     on<SyncTasks>(_onSyncTasks);
     on<_UpdateTasksInternal>(_onUpdateTasksInternal);
+
+    _authSubscription = authBloc.stream.listen((authState) {
+      if (authState.status == AuthStatus.authenticated) {
+        add(LoadTasks());
+      }
+    });
   }
 
+  String get _userId => authBloc.state.user?.uid ?? '';
+
   Future<void> _onLoadTasks(LoadTasks event, Emitter<TaskState> emit) async {
+    if (_userId.isEmpty) return;
     emit(state.copyWith(status: TaskStatus.loading));
     await _taskSubscription?.cancel();
-    _taskSubscription = repository.watchTasks().listen((tasks) {
+    _taskSubscription = repository.watchTasks(_userId).listen((tasks) {
       add(_UpdateTasksInternal(tasks));
     });
   }
@@ -47,27 +59,30 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onAddTask(AddTask event, Emitter<TaskState> emit) async {
+    if (_userId.isEmpty) return;
     emit(state.copyWith(errorMessage: null));
     try {
-      await repository.addTask(event.task);
+      await repository.addTask(_userId, event.task);
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 
   Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
+    if (_userId.isEmpty) return;
     emit(state.copyWith(errorMessage: null));
     try {
-      await repository.updateTask(event.task);
+      await repository.updateTask(_userId, event.task);
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 
   Future<void> _onDeleteTask(DeleteTask event, Emitter<TaskState> emit) async {
+    if (_userId.isEmpty) return;
     emit(state.copyWith(errorMessage: null));
     try {
-      await repository.deleteTask(event.taskId);
+      await repository.deleteTask(_userId, event.taskId);
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
@@ -121,7 +136,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onSyncTasks(SyncTasks event, Emitter<TaskState> emit) async {
-    await repository.syncTasks();
+    if (_userId.isEmpty) return;
+    await repository.syncTasks(_userId);
   }
 
   List<TaskEntity> _applyFilterAndSearch(
@@ -160,6 +176,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   @override
   Future<void> close() {
     _taskSubscription?.cancel();
+    _authSubscription?.cancel();
     return super.close();
   }
 }
