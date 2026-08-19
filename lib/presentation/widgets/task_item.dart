@@ -27,7 +27,7 @@ class TaskItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -78,7 +78,7 @@ class TaskItem extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.event_available_rounded, size: 14, color: Theme.of(context).colorScheme.primary.withOpacity(0.7)),
+                          Icon(Icons.event_available_rounded, size: 14, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7)),
                           const SizedBox(width: 4),
                           Text(
                             'Due: ${DateFormat('MMM dd').format(task.dueDate)}',
@@ -87,13 +87,13 @@ class TaskItem extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             '• Created: ${DateFormat('MMM dd').format(task.createdAt)}',
-                            style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7)),
+                            style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
                           ),
                           const SizedBox(width: 12),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.1),
+                              color: color.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
